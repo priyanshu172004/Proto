@@ -30,8 +30,10 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files — never commit real values
 .env*
+# ...but the template carries no secrets and must reach the repo.
+!.env.example
 
 # vercel
 .vercel
@@ -42,3 +44,6 @@ next-env.d.ts
 
 # Local scratch
 *.tmp.mjs
+
+# Reference material for the build, not part of the app.
+/info
