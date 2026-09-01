@@ -1,0 +1,267 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* next-themes writes .dark / .light on <html>; dark is the default. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ------------------------------------------------------------------
+   TOKENS — :root carries the DARK palette (primary). .light overrides.
+   ------------------------------------------------------------------ */
+:root {
+  --bg: #050506;
+  --surface: #0c0c0e;
+  --surface-2: #141417;
+  --surface-3: #1c1c20;
+  --border: rgb(255 255 255 / 0.08);
+  --border-strong: rgb(255 255 255 / 0.14);
+  --fg: #ededed;
+  --fg-muted: #8a8f98;
+  --fg-faint: #7c828c;
+  --accent: #10b981;
+  --accent-hi: #34d399;
+  --accent-deep: #065f46;
+  --accent-glow: rgb(16 185 129 / 0.18);
+  --accent-fg: #041410;
+
+  --card-highlight: inset 0 1px 0 rgb(255 255 255 / 0.045);
+  --shadow-ambient: 0 1px 2px rgb(0 0 0 / 0.4), 0 12px 40px -12px rgb(0 0 0 / 0.5);
+  --grain-opacity: 0.035;
+  --scrim: linear-gradient(to top, rgb(5 5 6 / 0.96) 12%, rgb(5 5 6 / 0.72) 46%, rgb(5 5 6 / 0) 100%);
+}
+
+.light {
+  --bg: #fafaf9;
+  --surface: #ffffff;
+  --surface-2: #f4f4f2;
+  --surface-3: #ececeb;
+  --border: rgb(0 0 0 / 0.09);
+  --border-strong: rgb(0 0 0 / 0.16);
+  --fg: #0a0a0a;
+  --fg-muted: #585f68;
+  --fg-faint: #686e75;
+  --accent: #047857;
+  --accent-hi: #059669;
+  --accent-deep: #064e3b;
+  --accent-glow: rgb(4 120 87 / 0.14);
+  --accent-fg: #ffffff;
+
+  --card-highlight: inset 0 1px 0 rgb(255 255 255 / 0.9);
+  --shadow-ambient: 0 1px 2px rgb(0 0 0 / 0.05), 0 12px 32px -16px rgb(0 0 0 / 0.14);
+  --grain-opacity: 0.02;
+  --scrim: linear-gradient(to top, rgb(255 255 255 / 0.97) 12%, rgb(255 255 255 / 0.78) 46%, rgb(255 255 255 / 0) 100%);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-faint: var(--fg-faint);
+  --color-accent: var(--accent);
+  --color-accent-hi: var(--accent-hi);
+  --color-accent-deep: var(--accent-deep);
+  --color-accent-fg: var(--accent-fg);
+
+  --font-sans: var(--font-geist-sans), "Inter Tight", system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), "JetBrains Mono", ui-monospace, monospace;
+  --font-doto: var(--font-doto), var(--font-geist-mono), monospace;
+
+  --radius-xs: 4px;
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+
+  --text-display: clamp(3rem, 11vw, 10rem);
+  --text-h2: clamp(2rem, 4.5vw, 3.5rem);
+  --text-h3: clamp(1.375rem, 2.2vw, 1.875rem);
+  --text-body: 1.0625rem;
+  --text-caption: 0.8125rem;
+
+  --spacing-section: clamp(8rem, 14vw, 12rem);
+}
+
+/* ------------------------------------------------------------------
+   BASE
+   ------------------------------------------------------------------ */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    background-color: var(--bg);
+    color-scheme: dark;
+    scroll-behavior: auto; /* Lenis owns scrolling */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html.light {
+    color-scheme: light;
+  }
+
+  body {
+    /* No background here on purpose: html paints the page and propagates it to
+       the canvas. A body background would cover negative-z-index children. */
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.65;
+    overflow-x: clip;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--accent-fg);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Scrollbar — thin, monochrome, matches the surface language. */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--surface-3);
+    border: 3px solid var(--bg);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--fg-faint);
+  }
+
+  /* The custom cursor replaces the native one only where it is active. */
+  body[data-cursor="custom"],
+  body[data-cursor="custom"] * {
+    cursor: none;
+  }
+}
+
+/* ------------------------------------------------------------------
+   UTILITIES
+   ------------------------------------------------------------------ */
+@utility doto {
+  font-family: var(--font-doto);
+  font-optical-sizing: auto;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+/**
+ * Content laid over a dark generated visual keeps the dark palette in BOTH
+ * themes. A project plate is a product shot, and product shots do not invert —
+ * flipping the scrim white in light mode left the titles dark-on-dark.
+ */
+@utility on-dark {
+  --fg: #ededed;
+  --fg-muted: #a3a8b0;
+  --fg-faint: #7c828c;
+  --border: rgb(255 255 255 / 0.12);
+  --border-strong: rgb(255 255 255 / 0.2);
+  --surface: #0c0c0e;
+  --surface-2: #141417;
+  --surface-3: #1c1c20;
+  --accent: #34d399;
+  --accent-hi: #6ee7b7;
+  --accent-fg: #041410;
+  --scrim: linear-gradient(to top, rgb(5 5 6 / 0.96) 12%, rgb(5 5 6 / 0.72) 46%, rgb(5 5 6 / 0) 100%);
+  color: var(--fg);
+}
+
+@utility card-surface {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--card-highlight), var(--shadow-ambient);
+}
+
+@utility scrim-bottom {
+  background: var(--scrim);
+}
+
+@utility text-balance-measure {
+  max-width: 68ch;
+}
+
+@utility mask-fade-r {
+  mask-image: linear-gradient(to right, #000 0%, #000 82%, transparent 100%);
+}
+
+@utility mask-fade-x {
+  mask-image: linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%);
+}
+
+/* ------------------------------------------------------------------
+   MOTION SAFETY — a real code path, not a suggestion.
+   ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.15ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  body[data-cursor="custom"],
+  body[data-cursor="custom"] * {
+    cursor: auto;
+  }
+}
+
+@keyframes caret-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.82);
+  }
+}
+
+@keyframes marquee-x {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
