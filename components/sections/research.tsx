@@ -2,19 +2,19 @@
 
 import { motion } from "framer-motion";
 import { Container, Section, SectionHeader } from "@/components/primitives/section";
-import { CardScrim } from "@/components/primitives/bento-card";
 import { RevealGroup } from "@/components/primitives/reveal";
-import { research } from "@/data/research";
+import { Badge } from "@/components/ui/badge";
+import { research, type ResearchMotif, type ResearchProject } from "@/data/research";
 import { revealVariants } from "@/lib/motion";
-import { pad } from "@/lib/utils";
+import { cn, pad } from "@/lib/utils";
 
 /**
- * Deliberately not "more projects": narrower cards, plot-like motifs, monospace
- * annotation, almost no colour. Reads as an instrument rack rather than a
- * product shelf.
+ * Research tracks, read in place.
  *
- * Titles only — descriptions are pending from the author, so the composition is
- * built to be complete without them rather than to hide a gap.
+ * Each entry carries a real three-part account — problem, approach,
+ * application — so the cards are wide and the text lives inline. No dialog:
+ * gating a paragraph behind a click adds a step and hides the substance that
+ * makes this section worth having.
  */
 export function Research() {
   return (
@@ -24,39 +24,13 @@ export function Research() {
           index="03"
           eyebrow="Core Machine Learning"
           title="Research tracks."
-          lede="Outcome-driven investigations sitting underneath the applied work."
+          lede="Outcome-driven investigations sitting underneath the applied work — what the problem was, how it was approached, and where it lands."
           className="mb-14"
         />
 
-        <RevealGroup
-          className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5"
-          stagger={0.07}
-        >
+        <RevealGroup className="grid grid-cols-1 gap-3 xl:grid-cols-2" stagger={0.06}>
           {research.map((item, i) => (
-            <motion.article
-              key={item.id}
-              variants={revealVariants}
-              className="on-dark group card-surface relative flex min-h-[19rem] flex-col overflow-hidden rounded-md"
-            >
-              <div
-                aria-hidden
-                className="absolute inset-0 transition-transform duration-700 ease-[cubic-bezier(.22,1,.36,1)] motion-safe:group-hover:scale-[1.03]"
-              >
-                <ResearchPlate index={i} />
-              </div>
-
-              <CardScrim height="52%" />
-
-              <div className="relative z-20 mt-auto flex flex-col gap-2 p-5">
-                <span className="doto text-[10px] text-accent">R-{pad(i + 1)}</span>
-                <h3 className="doto text-[0.95rem] leading-tight font-semibold text-balance text-fg">
-                  {item.title}
-                </h3>
-                {item.description && (
-                  <p className="text-caption text-fg-muted">{item.description}</p>
-                )}
-              </div>
-            </motion.article>
+            <ResearchCard key={item.id} item={item} index={i} />
           ))}
         </RevealGroup>
       </Container>
@@ -64,153 +38,214 @@ export function Research() {
   );
 }
 
-/** Five hand-drawn plot motifs, one per track. Monochrome with a single accent. */
-function ResearchPlate({ index }: { index: number }) {
+function ResearchCard({ item, index }: { item: ResearchProject; index: number }) {
+  const isLast = index === research.length - 1;
+
+  return (
+    <motion.article
+      variants={revealVariants}
+      className={cn(
+        "on-dark group card-surface relative flex flex-col overflow-hidden rounded-md",
+        // An odd count leaves a gap; the final entry takes the full row.
+        isLast && research.length % 2 === 1 && "xl:col-span-2",
+      )}
+    >
+      <div
+        aria-hidden
+        className="relative h-28 shrink-0 overflow-hidden transition-transform duration-700 ease-[cubic-bezier(.22,1,.36,1)] motion-safe:group-hover:scale-[1.02]"
+      >
+        <ResearchPlate motif={item.motif} />
+        <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/60 to-transparent" />
+      </div>
+
+      <div className="flex flex-1 flex-col gap-5 p-5 sm:p-6">
+        <header className="flex flex-col gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="doto text-[10px] text-accent">R-{pad(index + 1)}</span>
+            <Badge variant="outline">{item.domain}</Badge>
+          </div>
+          <div>
+            <h3 className="doto text-[clamp(0.95rem,1.5vw,1.15rem)] leading-tight font-semibold text-fg">
+              {item.title}
+            </h3>
+            <p className="mt-1.5 font-mono text-[12px] text-fg-muted">{item.subtitle}</p>
+          </div>
+        </header>
+
+        <dl className="flex flex-col gap-4">
+          <Block label="Problem" body={item.problem} />
+          <Block label="Approach" body={item.approach} />
+          <Block label="Application" body={item.application} accent />
+        </dl>
+      </div>
+    </motion.article>
+  );
+}
+
+function Block({ label, body, accent }: { label: string; body: string; accent?: boolean }) {
+  return (
+    <div className="grid gap-1.5 border-t border-line pt-3.5 first:border-t-0 first:pt-0">
+      <dt className={cn("doto text-[9px]", accent ? "text-accent" : "text-fg-faint")}>{label}</dt>
+      <dd className="text-[0.86rem] leading-relaxed text-fg-muted">{body}</dd>
+    </div>
+  );
+}
+
+/** Five plot motifs, one per track. Monochrome with a single accent mark. */
+function ResearchPlate({ motif }: { motif: ResearchMotif }) {
+  const Motif = MOTIFS[motif];
   return (
     <div className="absolute inset-0 bg-[#08080b]">
       <div
-        className="absolute inset-0 opacity-[0.2]"
+        className="absolute inset-0 opacity-[0.14]"
         style={{
           backgroundImage:
-            "linear-gradient(rgb(255 255 255 / 0.4) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / 0.4) 1px, transparent 1px)",
-          backgroundSize: "22px 22px",
-          maskImage: "linear-gradient(to bottom, #000 0%, transparent 82%)",
+            "linear-gradient(rgb(255 255 255 / 0.5) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / 0.5) 1px, transparent 1px)",
+          backgroundSize: "28px 28px",
+          maskImage: "linear-gradient(to bottom, #000 0%, transparent 88%)",
         }}
       />
-      <svg viewBox="0 0 200 320" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 h-full w-full">
-        <g stroke="rgb(255 255 255 / 0.22)" strokeWidth="0.7">
-          <line x1="22" y1="24" x2="22" y2="196" />
-          <line x1="22" y1="196" x2="178" y2="196" />
-        </g>
-        {[Topology, Regression, Spectrum, Contours, Federated][index % 5]()}
+      <svg
+        viewBox="0 0 480 120"
+        preserveAspectRatio="xMidYMid slice"
+        className="absolute inset-0 h-full w-full"
+        fill="none"
+      >
+        <Motif />
       </svg>
     </div>
   );
 }
 
+const STROKE = "rgb(255 255 255 / 0.28)";
+const STROKE_SOFT = "rgb(255 255 255 / 0.16)";
+
+/** Lateral movement across a device graph. */
 function Topology() {
   const nodes = [
-    [52, 62],
-    [110, 44],
-    [156, 84],
-    [72, 118],
-    [134, 138],
-    [46, 168],
-    [166, 176],
+    [78, 40],
+    [148, 78],
+    [214, 34],
+    [284, 74],
+    [352, 38],
+    [414, 80],
   ] as const;
   return (
     <>
-      <g stroke="rgb(255 255 255 / 0.2)" strokeWidth="0.7">
-        {nodes.map(([x, y], i) => (
-          <line key={i} x1={x} y1={y} x2={nodes[(i + 2) % nodes.length][0]} y2={nodes[(i + 2) % nodes.length][1]} />
-        ))}
-      </g>
+      <polyline
+        points={nodes.map(([x, y]) => `${x},${y}`).join(" ")}
+        stroke={STROKE_SOFT}
+        strokeWidth="1"
+      />
       {nodes.map(([x, y], i) => (
-        <circle key={i} cx={x} cy={y} r={i === 2 ? 5 : 3} fill={i === 2 ? "var(--accent)" : "rgb(255 255 255 / 0.55)"} />
+        <circle
+          key={i}
+          cx={x}
+          cy={y}
+          r={i === nodes.length - 1 ? 4.5 : 3}
+          fill={i === nodes.length - 1 ? "var(--accent)" : STROKE}
+        />
       ))}
-      <path d="M156 84 l16 -14 m0 0 l-7 1 m7 -1 l-1 7" stroke="var(--accent)" strokeWidth="1.1" fill="none" />
+      <path d="M414 80 l18 -12 m0 0 l-8 0 m8 0 l0 8" stroke="var(--accent)" strokeWidth="1.2" />
     </>
   );
 }
 
-function Regression() {
-  const pts = [
-    [40, 176],
-    [58, 160],
-    [72, 152],
-    [88, 128],
-    [104, 124],
-    [118, 100],
-    [136, 88],
-    [152, 66],
-  ] as const;
+/** Surface texture contours around a face region. */
+function Contours() {
   return (
     <>
-      <line x1="34" y1="184" x2="164" y2="56" stroke="var(--accent)" strokeWidth="1.2" opacity="0.9" />
-      <line x1="34" y1="196" x2="164" y2="68" stroke="rgb(255 255 255 / 0.16)" strokeWidth="0.7" strokeDasharray="3 4" />
-      {pts.map(([x, y], i) => (
-        <circle key={i} cx={x} cy={y} r="3.2" fill="none" stroke="rgb(255 255 255 / 0.6)" strokeWidth="1" />
+      {[46, 34, 23, 13].map((r, i) => (
+        <ellipse
+          key={r}
+          cx="240"
+          cy="62"
+          rx={r * 1.5}
+          ry={r}
+          stroke={i === 3 ? "var(--accent)" : STROKE_SOFT}
+          strokeWidth={i === 3 ? 1.3 : 0.9}
+        />
+      ))}
+      <line x1="240" y1="6" x2="240" y2="116" stroke={STROKE_SOFT} strokeWidth="0.8" strokeDasharray="2 6" />
+    </>
+  );
+}
+
+/** Pen dynamics — one continuous stroke with pressure nodes. */
+function Stroke() {
+  return (
+    <>
+      <path
+        d="M64 84 C 104 22, 132 104, 172 58 S 234 20, 268 76 S 330 104, 366 44 S 410 58, 428 70"
+        stroke="var(--accent)"
+        strokeWidth="1.4"
+      />
+      <path
+        d="M64 96 C 108 44, 138 112, 176 74 S 238 40, 272 88 S 332 112, 368 60"
+        stroke={STROKE_SOFT}
+        strokeWidth="0.9"
+        strokeDasharray="3 5"
+      />
+      {[
+        [172, 58],
+        [268, 76],
+        [366, 44],
+      ].map(([x, y]) => (
+        <circle key={x} cx={x} cy={y} r="2.6" fill="var(--accent)" />
       ))}
     </>
   );
 }
 
+/** Frequency-domain artefacts. */
 function Spectrum() {
-  const bars = [28, 52, 38, 74, 96, 62, 118, 84, 46, 70, 34, 58];
+  const bars = [16, 30, 22, 44, 58, 36, 72, 50, 26, 42, 20, 34, 48, 24, 38];
   return (
     <>
       {bars.map((h, i) => (
         <rect
           key={i}
-          x={32 + i * 12}
-          y={196 - h}
-          width="6"
+          x={62 + i * 24}
+          y={100 - h}
+          width="5"
           height={h}
           rx="1"
-          fill={i === 6 ? "var(--accent)" : "rgb(255 255 255 / 0.28)"}
+          fill={i === 6 ? "var(--accent)" : STROKE}
         />
       ))}
-      <path
-        d="M32 120 q 18 -30 36 6 t 36 -18 t 36 24 t 36 -12"
-        fill="none"
-        stroke="rgb(255 255 255 / 0.35)"
-        strokeWidth="0.9"
-      />
+      <line x1="56" y1="102" x2="428" y2="102" stroke={STROKE_SOFT} strokeWidth="0.8" />
     </>
   );
 }
 
-function Contours() {
-  return (
-    <>
-      {[54, 40, 27, 15].map((r, i) => (
-        <ellipse
-          key={r}
-          cx="100"
-          cy="112"
-          rx={r * 1.15}
-          ry={r}
-          fill="none"
-          stroke={i === 3 ? "var(--accent)" : "rgb(255 255 255 / 0.26)"}
-          strokeWidth={i === 3 ? 1.3 : 0.8}
-        />
-      ))}
-      <g stroke="rgb(255 255 255 / 0.2)" strokeWidth="0.7">
-        <line x1="100" y1="40" x2="100" y2="184" strokeDasharray="2 5" />
-        <line x1="28" y1="112" x2="172" y2="112" strokeDasharray="2 5" />
-      </g>
-    </>
-  );
-}
-
+/** Local silos reporting parameters to one coordinator. */
 function Federated() {
-  const left = [
-    [48, 70],
-    [40, 104],
-    [64, 134],
-  ] as const;
-  const right = [
-    [150, 70],
-    [160, 104],
-    [136, 134],
+  const silos = [
+    [92, 92],
+    [166, 34],
+    [314, 34],
+    [388, 92],
   ] as const;
   return (
     <>
-      <g stroke="rgb(255 255 255 / 0.2)" strokeWidth="0.7">
-        {left.map(([x, y], i) => (
-          <line key={`l${i}`} x1={x} y1={y} x2="100" y2="102" />
-        ))}
-        {right.map(([x, y], i) => (
-          <line key={`r${i}`} x1={x} y1={y} x2="100" y2="102" strokeDasharray="3 4" />
+      <g stroke={STROKE_SOFT} strokeWidth="0.9" strokeDasharray="3 4">
+        {silos.map(([x, y], i) => (
+          <line key={i} x1={x} y1={y} x2="240" y2="62" />
         ))}
       </g>
-      {[...left, ...right].map(([x, y], i) => (
-        <circle key={i} cx={x} cy={y} r="3.4" fill="rgb(255 255 255 / 0.5)" />
+      {silos.map(([x, y], i) => (
+        <rect key={i} x={x - 6} y={y - 6} width="12" height="12" rx="2" stroke={STROKE} strokeWidth="1" />
       ))}
-      <rect x="88" y="90" width="24" height="24" rx="3" fill="none" stroke="var(--accent)" strokeWidth="1.2" />
-      <rect x="93" y="95" width="14" height="14" rx="2" fill="var(--accent)" opacity="0.55" />
-      <line x1="100" y1="130" x2="100" y2="176" stroke="rgb(255 255 255 / 0.18)" strokeWidth="0.7" strokeDasharray="2 4" />
-      <rect x="86" y="176" width="28" height="12" rx="2" fill="none" stroke="rgb(255 255 255 / 0.3)" strokeWidth="0.8" />
+      <rect x="226" y="48" width="28" height="28" rx="3" stroke="var(--accent)" strokeWidth="1.2" />
+      <rect x="233" y="55" width="14" height="14" rx="2" fill="var(--accent)" opacity="0.5" />
     </>
   );
 }
+
+const MOTIFS: Record<ResearchMotif, () => React.ReactElement> = {
+  topology: Topology,
+  contours: Contours,
+  stroke: Stroke,
+  spectrum: Spectrum,
+  federated: Federated,
+};

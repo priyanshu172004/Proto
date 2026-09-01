@@ -49,7 +49,7 @@ No content lives in JSX. Everything is a typed module in `data/`.
 |---|---|
 | `data/profile.ts` | Name, roles, tagline, summary, education, interests, books |
 | `data/projects.ts` | The 8 projects — copy, features, stack, repo, bento span, visual key |
-| `data/research.ts` | The 5 ML research titles |
+| `data/research.ts` | The 5 ML research tracks — title, subtitle, domain, problem / approach / application |
 | `data/stack.ts` | Technologies and the domains each belongs to |
 | `data/achievements.ts` | Open-source programmes and hackathon results |
 | `data/experience.ts` | Roles and dates |
@@ -77,10 +77,6 @@ No content lives in JSX. Everything is a typed module in `data/`.
 
 **Add a blog post** — push one object into `posts` in `data/blog.ts`. Empty the
 array and the section falls back to a designed empty state rather than filler.
-
-**Add research descriptions** — fill the optional `description` on any entry in
-`data/research.ts`. The cards are built to look finished without them, so no
-layout changes are needed.
 
 **Add photos** — drop them in `/pictures`, run `npm run assets`. The script
 optimises them, generates blur placeholders, and rewrites the manifest with
@@ -118,10 +114,9 @@ Nothing on this site is invented. There are no placeholder metrics, no articles
 falsely attributed, and no fabricated activity graphs — when a live feed cannot
 be reached, the card renders an empty state and links to the profile instead.
 
-Two items are worth a second look before going live:
+One item is worth a second look before going live:
 
-1. **Research descriptions** are absent, pending real copy from the author.
-2. **The ML/AI stack list** was extended beyond the originally supplied names
+1. **The ML/AI stack list** was extended beyond the originally supplied names
    (Keras, Scikit-learn, OpenCV, Transformers, LangChain/LangGraph, spaCy,
    NLTK, Matplotlib, SciPy, Docker). Confirmed for inclusion — remove any entry
    in `data/stack.ts` that stops being accurate.
